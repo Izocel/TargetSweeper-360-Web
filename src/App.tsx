@@ -214,8 +214,7 @@ function App() {
                   Load KML from URL
                 </button>
                 <p className="text-xs text-gray-500">
-                  Note: URL must be publicly accessible. Google Maps KmlLayer
-                  preserves all original styling and features.
+                  Note: Google Maps KmlLayer URL must be publicly accessible.
                 </p>
               </form>
             </div>

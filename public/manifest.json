@@ -40,32 +40,6 @@
             "purpose": "any maskable"
         }
     ],
-    "shortcuts": [
-        {
-            "name": "Load KML",
-            "short_name": "Load KML",
-            "description": "Quickly load a KML file",
-            "url": "/?action=load-kml",
-            "icons": [
-                {
-                    "src": "/shortcut-load.png",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "My Location",
-            "short_name": "Location",
-            "description": "Center map on current location",
-            "url": "/?action=location",
-            "icons": [
-                {
-                    "src": "/shortcut-location.png",
-                    "sizes": "96x96"
-                }
-            ]
-        }
-    ],
     "file_handlers": [
         {
             "action": "/",
