@@ -18,20 +18,6 @@
         "utilities",
         "productivity"
     ],
-    "screenshots": [
-        {
-            "src": "/screenshot-desktop.png",
-            "sizes": "1280x720",
-            "type": "image/png",
-            "form_factor": "wide"
-        },
-        {
-            "src": "/screenshot-mobile.png",
-            "sizes": "640x1136",
-            "type": "image/png",
-            "form_factor": "narrow"
-        }
-    ],
     "icons": [
         {
             "src": "/TargetSweeper-360-Web/icon-base.svg",
