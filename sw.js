@@ -154,8 +154,6 @@ async function networkFirst(request, cacheName) {
 
 // Background sync for offline actions
 self.addEventListener('sync', (event) => {
-    console.log('Background sync triggered:', event.tag);
-
     if (event.tag === 'location-update') {
         event.waitUntil(syncLocationData());
     }
