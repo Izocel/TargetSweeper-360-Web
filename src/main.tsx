@@ -45,7 +45,6 @@ class PWAManager {
     if (this.deferredPrompt) {
       this.deferredPrompt.prompt();
       const { outcome } = await this.deferredPrompt.userChoice;
-      console.log(`User response to install prompt: ${outcome}`);
       this.deferredPrompt = null;
 
       // Remove install button
@@ -149,8 +148,6 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register(swPath)
       .then((registration) => {
-        console.log("SW registered: ", registration);
-
         // Handle service worker updates
         registration.addEventListener("updatefound", () => {
           const newWorker = registration.installing;
@@ -167,8 +164,8 @@ if ("serviceWorker" in navigator) {
           }
         });
       })
-      .catch((registrationError) => {
-        console.log("SW registration failed: ", registrationError);
+      .catch(() => {
+        console.log("SW registration failed");
       });
   });
 }
@@ -176,8 +173,6 @@ if ("serviceWorker" in navigator) {
 // Enhanced permissions handling
 if ("permissions" in navigator) {
   navigator.permissions.query({ name: "geolocation" }).then((result) => {
-    console.log("Geolocation permission status:", result.state);
-
     // Listen for permission changes
     result.addEventListener("change", () => {
       window.dispatchEvent(

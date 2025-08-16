@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Loader } from "@googlemaps/js-api-loader";
+
 import { Loader as LoaderIcon } from "lucide-react";
-import { AlternativeMapLoader } from "../utils/MapLoader";
+import { MapLoader } from "../utils/MapLoader";
 import "./KMLViewer.css";
 
 interface KMLData {
@@ -46,83 +46,9 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
         // Test if we can reach Google Maps API
         console.log("Testing API endpoint...");
 
-        // Try the alternative loader first
-        try {
-          const alternativeLoader = new AlternativeMapLoader(apiKey);
-          await alternativeLoader.loadGoogleMapsAPI();
-        } catch (altError) {
-          console.warn(
-            "Alternative loader failed, trying @googlemaps/js-api-loader:",
-            altError
-          );
-
-          try {
-            // Check if Google Maps is already partially loaded (to avoid loading geometry twice)
-            if (window.google && window.google.maps && window.google.maps.Map) {
-              console.log(
-                "Google Maps already loaded, skipping standard loader"
-              );
-            } else {
-              // Fallback to the standard loader
-              const loader = new Loader({
-                apiKey: apiKey,
-                version: "weekly",
-                libraries: ["geometry", "marker"],
-              });
-
-              await loader.load();
-            }
-          } catch (loaderError) {
-            console.warn(
-              "Standard loader failed, trying direct script injection:",
-              loaderError
-            );
-
-            // Final fallback: direct script injection (only if Google Maps isn't loaded yet)
-            if (
-              !window.google ||
-              !window.google.maps ||
-              !window.google.maps.Map
-            ) {
-              await new Promise<void>((resolve, reject) => {
-                const script = document.createElement("script");
-                script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,marker&loading=async`;
-                script.async = true;
-                script.defer = true;
-
-                script.onload = () => {
-                  // Poll for availability
-                  const checkAvailable = () => {
-                    if (
-                      window.google &&
-                      window.google.maps &&
-                      window.google.maps.Map
-                    ) {
-                      resolve();
-                    } else {
-                      setTimeout(checkAvailable, 100);
-                    }
-                  };
-                  checkAvailable();
-                };
-
-                script.onerror = () =>
-                  reject(new Error("Direct script injection failed"));
-
-                document.head.appendChild(script);
-
-                setTimeout(
-                  () => reject(new Error("Script loading timeout")),
-                  20000
-                );
-              });
-            } else {
-              console.log(
-                "Google Maps already loaded, skipping direct script injection"
-              );
-            }
-          }
-        }
+        // Use the single MapLoader
+        const loader = new MapLoader(apiKey);
+        await loader.loadGoogleMapsAPI();
 
         console.log("Google Maps API loaded successfully");
 
@@ -132,8 +58,6 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
             lat: 37.7749,
             lng: -122.4194,
           };
-
-          console.log("Creating map with center:", defaultCenter);
 
           const mapInstance = new google.maps.Map(mapRef.current, {
             zoom: initialPosition ? 15 : 10, // Zoom closer if we have user's position
@@ -149,7 +73,6 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
             // Removed custom styles array to use default Google Maps styling
           });
 
-          console.log("Map created successfully:", mapInstance);
           setMap(mapInstance);
 
           // Set loading to false immediately after map creation
@@ -157,12 +80,10 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
 
           // If we have an initial position, center on it and add a marker
           if (initialPosition) {
-            console.log("Centering map on initial position:", initialPosition);
             mapInstance.setCenter(initialPosition);
             mapInstance.setZoom(15);
 
             // Add marker for current location
-            console.log("Adding marker for initial position:", initialPosition);
             // Use AdvancedMarkerElement if available (recommended), fallback to Marker
             if (
               google.maps.marker &&
@@ -304,7 +225,6 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
       // Listen for KML layer events
       kmlLayer.addListener("status_changed", () => {
         const status = kmlLayer.getStatus();
-        console.log("KML Layer status:", status);
 
         if (status === "OK") {
           console.log(

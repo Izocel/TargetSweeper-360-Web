@@ -41,7 +41,6 @@ function App() {
         const permission = await navigator.permissions.query({
           name: "geolocation",
         });
-        console.log("Current geolocation permission:", permission.state);
         return permission.state === "granted" || permission.state === "prompt";
       } catch (error) {
         console.log(
@@ -317,8 +316,6 @@ function App() {
                       const lat = position.coords.latitude;
                       const lng = position.coords.longitude;
                       const accuracy = position.coords.accuracy;
-
-                      console.log("Location obtained:", { lat, lng, accuracy });
 
                       // Validate coordinates
                       if (

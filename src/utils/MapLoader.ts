@@ -1,5 +1,6 @@
-// Alternative Google Maps loader with better error handling
-export class AlternativeMapLoader {
+
+// Single Google Maps loader with robust error handling
+export class MapLoader {
     private apiKey: string;
 
     constructor(apiKey: string) {
