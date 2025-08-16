@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Target, Github, X } from "lucide-react";
+import iconBase from "../assets/icon-base.svg";
+import { Github, X } from "lucide-react";
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -15,8 +16,12 @@ const Header: React.FC = () => {
           <div className="flex items-center justify-between">
             {/* Logo and Title */}
             <div className="flex items-center space-x-3">
-              <div className="bg-military-600 p-2 rounded-lg">
-                <Target className="w-6 h-6 text-white" />
+              <div className="flex items-center justify-center bg-white border border-military-200 rounded-lg shadow-sm w-12 h-12 mr-1">
+                <img
+                  src={iconBase}
+                  alt="TargetSweeper 360 Logo"
+                  className="w-8 h-8"
+                />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
@@ -37,6 +42,19 @@ const Header: React.FC = () => {
                 <Github className="w-4 h-4 mr-2" />
                 CLI Tool
               </a>
+              <button
+                className="flex items-center bg-military-600 hover:bg-military-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-military-500 focus:ring-opacity-50 shadow-md hover:shadow-lg text-base"
+                onClick={() => {
+                  if (
+                    (window as any).pwaManager &&
+                    typeof (window as any).pwaManager.installPWA === "function"
+                  ) {
+                    (window as any).pwaManager.installPWA();
+                  }
+                }}
+              >
+                📱 Install App
+              </button>
             </nav>
 
             {/* Mobile menu button - Shown on mobile, hidden on desktop */}
@@ -79,7 +97,7 @@ const Header: React.FC = () => {
 
           {/* Mobile Menu */}
           <nav className="fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out md:hidden">
-            <div className="p-6 pt-20">
+            <div className="flex flex-col h-full justify-between p-6 pt-20">
               <div className="space-y-6">
                 <a
                   href="https://github.com/Izocel/TargetSweeper-360"
@@ -91,7 +109,23 @@ const Header: React.FC = () => {
                   <Github className="w-5 h-5 mr-3" />
                   CLI Tool
                 </a>
+                <button
+                  className="w-full flex items-center justify-center bg-military-600 hover:bg-military-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-military-500 focus:ring-opacity-50 shadow-md hover:shadow-lg text-lg mt-2"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    if (
+                      (window as any).pwaManager &&
+                      typeof (window as any).pwaManager.installPWA ===
+                        "function"
+                    ) {
+                      (window as any).pwaManager.installPWA();
+                    }
+                  }}
+                >
+                  📱 Install App
+                </button>
               </div>
+              {/* Install App button moved above, only appears in menu */}
             </div>
           </nav>
         </>

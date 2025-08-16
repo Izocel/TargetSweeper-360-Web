@@ -14,9 +14,12 @@ class PWAManager {
   private initializePWA() {
     // Handle PWA install prompt
     window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      this.deferredPrompt = e;
-      this.showInstallPromotion();
+      // Show both: custom button and default browser banner
+      const promptEvent = e as any;
+      this.deferredPrompt = promptEvent;
+
+      // Show the default browser install banner immediately
+      promptEvent.prompt();
     });
 
     // Handle successful PWA installation
@@ -36,29 +39,6 @@ class PWAManager {
 
     // Set up native app behaviors
     this.setupNativeBehaviors();
-  }
-
-  private showInstallPromotion() {
-    // Create install button if it doesn't exist
-    const existingButton = document.getElementById("install-pwa-button");
-    if (!existingButton && this.deferredPrompt) {
-      const installButton = document.createElement("button");
-      installButton.id = "install-pwa-button";
-      installButton.textContent = "📱 Install App";
-      installButton.className =
-        "fixed top-4 left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors";
-
-      installButton.addEventListener("click", () => {
-        this.installPWA();
-      });
-
-      document.body.appendChild(installButton);
-
-      // Auto-hide after 10 seconds
-      setTimeout(() => {
-        installButton.style.opacity = "0.7";
-      }, 10000);
-    }
   }
 
   public async installPWA() {
@@ -161,10 +141,13 @@ class PWAManager {
 const pwaManager = new PWAManager();
 
 // Register Service Worker for PWA functionality
+// Register Service Worker only in production (GitHub Pages or custom domain), not in localhost/dev
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
+    // Use Vite's import.meta.env.PROD to determine environment
+    const swPath = `${import.meta.env.BASE_URL}sw.js`;
     navigator.serviceWorker
-      .register("/sw.js")
+      .register(swPath)
       .then((registration) => {
         console.log("SW registered: ", registration);
 

@@ -53,7 +53,6 @@ function App() {
     return true; // If Permissions API not supported, proceed with geolocation
   };
 
-
   // Set default position on page load (don't automatically request geolocation)
   useEffect(() => {
     // Set default position immediately to avoid loading issues

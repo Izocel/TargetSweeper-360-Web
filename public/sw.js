@@ -4,11 +4,12 @@ const STATIC_CACHE = 'targetsweeper-static-v2';
 const DYNAMIC_CACHE = 'targetsweeper-dynamic-v2';
 
 // Resources to cache immediately
+const BASE_URL = self.registration.scope.replace(/\/$/, '');
 const STATIC_ASSETS = [
-    '/',
-    '/manifest.json',
-    '/icon-base.svg',
-    '/offline.html' // Fallback page
+    `${BASE_URL}/`,
+    `${BASE_URL}/manifest.json`,
+    `${BASE_URL}/icon-base.svg`,
+    `${BASE_URL}/offline.html` // Fallback page
 ];
 
 // API endpoints that should be cached
