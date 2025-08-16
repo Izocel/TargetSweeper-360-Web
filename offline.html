@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TargetSweeper 360 - Offline</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+
+      .offline-container {
+        max-width: 400px;
+        padding: 40px 20px;
+      }
+
+      .offline-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 30px;
+        opacity: 0.8;
+      }
+
+      h1 {
+        font-size: 2em;
+        margin-bottom: 16px;
+        font-weight: 600;
+      }
+
+      p {
+        font-size: 1.1em;
+        line-height: 1.6;
+        opacity: 0.9;
+        margin-bottom: 30px;
+      }
+
+      .retry-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .retry-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .features {
+        margin-top: 40px;
+        text-align: left;
+      }
+
+      .feature {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        font-size: 0.95em;
+      }
+
+      .feature-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline-container">
+      <svg class="offline-icon" viewBox="0 0 512 512" fill="currentColor">
+        <!-- Target crosshairs icon -->
+        <circle
+          cx="256"
+          cy="256"
+          r="200"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="8"
+        />
+        <circle
+          cx="256"
+          cy="256"
+          r="120"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="6"
+        />
+        <circle
+          cx="256"
+          cy="256"
+          r="40"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4"
+        />
+        <line
+          x1="256"
+          y1="56"
+          x2="256"
+          y2="456"
+          stroke="currentColor"
+          stroke-width="4"
+        />
+        <line
+          x1="56"
+          y1="256"
+          x2="456"
+          y2="256"
+          stroke="currentColor"
+          stroke-width="4"
+        />
+        <circle cx="256" cy="256" r="16" fill="currentColor" />
+      </svg>
+
+      <h1>You're Offline</h1>
+      <p>
+        TargetSweeper 360 requires an internet connection to load maps and KML
+        data. Please check your connection and try again.
+      </p>
+
+      <button class="retry-btn" onclick="window.location.reload()">
+        🔄 Try Again
+      </button>
+
+      <div class="features">
+        <div class="feature">
+          <svg class="feature-icon" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"
+            />
+          </svg>
+          GPS positioning when online
+        </div>
+        <div class="feature">
+          <svg class="feature-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M14.828 14.828a4 4 0 0 1-5.656 0M9 10h1m4 0h1m-6 4h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2Z"
+            />
+          </svg>
+          KML file visualization
+        </div>
+        <div class="feature">
+          <svg class="feature-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Tactical mapping tools
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Auto-retry when back online
+      window.addEventListener("online", () => {
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      });
+
+      // Update UI based on connection status
+      function updateConnectionStatus() {
+        if (navigator.onLine) {
+          document.querySelector(".retry-btn").textContent =
+            "🔄 Reconnected - Loading...";
+          setTimeout(() => window.location.reload(), 500);
+        }
+      }
+
+      window.addEventListener("online", updateConnectionStatus);
+      window.addEventListener("offline", updateConnectionStatus);
+    </script>
+  </body>
+</html>
