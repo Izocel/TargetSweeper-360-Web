@@ -44,7 +44,7 @@ class PWAManager {
   public async installPWA() {
     if (this.deferredPrompt) {
       this.deferredPrompt.prompt();
-      const { outcome } = await this.deferredPrompt.userChoice;
+      await this.deferredPrompt.userChoice;
       this.deferredPrompt = null;
 
       // Remove install button

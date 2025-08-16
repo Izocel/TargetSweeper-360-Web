@@ -50,6 +50,9 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
         const loader = new MapLoader(apiKey);
         await loader.loadGoogleMapsAPI();
 
+        // Get Map ID from environment (for Advanced Markers and custom styling)
+        const mapId = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
+
         console.log("Google Maps API loaded successfully");
 
         if (mapRef.current) {
@@ -59,19 +62,23 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
             lng: -122.4194,
           };
 
-          const mapInstance = new google.maps.Map(mapRef.current, {
-            zoom: initialPosition ? 15 : 10, // Zoom closer if we have user's position
+          const mapOptions: google.maps.MapOptions = {
+            zoom: initialPosition ? 15 : 10,
             center: defaultCenter,
-            mapTypeId: google.maps.MapTypeId?.ROADMAP || "roadmap", // Changed to default ROADMAP
-            // Enable built-in Google Maps controls
+            mapTypeId: google.maps.MapTypeId?.ROADMAP || "roadmap",
             zoomControl: true,
             mapTypeControl: true,
             scaleControl: true,
             streetViewControl: true,
             rotateControl: true,
             fullscreenControl: true,
-            // Removed custom styles array to use default Google Maps styling
-          });
+          };
+          // If a valid Map ID is provided, add it to options
+          if (typeof mapId === "string" && mapId.trim().length > 0) {
+            mapOptions.mapId = mapId.trim();
+          }
+
+          const mapInstance = new google.maps.Map(mapRef.current, mapOptions);
 
           setMap(mapInstance);
 
