@@ -1,0 +1,54 @@
+/* KML Info Window Styles */
+.kml-info-window {
+  padding: 16px;
+  max-width: 300px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.kml-info-window h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.kml-info-window p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.kml-info-window strong {
+  color: #1f2937;
+}
+
+/* Fallback styles for coordinate display */
+.kml-fallback-item {
+  background: #f9fafb;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.kml-fallback-item:hover {
+  background: #f3f4f6;
+}
+
+.kml-color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.kml-color-line {
+  width: 12px;
+  height: 4px;
+  border-radius: 2px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}

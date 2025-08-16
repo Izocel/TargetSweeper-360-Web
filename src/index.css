@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply min-h-screen bg-gray-50 text-gray-900 m-0;
+    display: block;
+    place-items: initial;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-military-600 hover:bg-military-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-military-500 focus:ring-opacity-50 shadow-md hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-tactical-200 hover:bg-tactical-300 text-tactical-800 font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-tactical-500 focus:ring-opacity-50 border border-tactical-300 hover:border-tactical-400;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-lg border border-gray-200 p-6 transition-shadow duration-200 hover:shadow-xl;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-military-500 focus:border-transparent outline-none transition-all duration-200;
+  }
+  
+  .map-container {
+    @apply w-full h-96 md:h-[500px] lg:h-[700px] xl:h-[800px] rounded-lg overflow-hidden shadow-lg;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  
+  body {
+    @apply bg-tactical-900 text-gray-100;
+  }
+}

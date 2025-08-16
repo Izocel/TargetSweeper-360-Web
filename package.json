@@ -1,0 +1,53 @@
+{
+  "name": "targetsweeper-360-web",
+  "version": "1.0.0",
+  "description": "Web-based viewer for TargetSweeper-360 tactical sweep patterns with Google Maps integration",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "dev:https": "vite --host --https",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "serve": "vite preview --port 4173"
+  },
+  "keywords": [
+    "tactical",
+    "sweep-patterns",
+    "kml-viewer",
+    "google-maps",
+    "search-rescue",
+    "geospatial"
+  ],
+  "author": "TargetSweeper-360 Project",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Izocel/TargetSweeper-360-Web.git"
+  },
+  "dependencies": {
+    "@google/earthengine": "^1.6.3",
+    "@googlemaps/js-api-loader": "^1.16.10",
+    "@tailwindcss/vite": "^4.1.12",
+    "@types/google.maps": "^3.58.1",
+    "lucide-react": "^0.539.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-dropzone": "^14.3.8",
+    "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "postcss": "^8.5.6",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.39.1",
+    "vite": "^7.1.2"
+  }
+}
