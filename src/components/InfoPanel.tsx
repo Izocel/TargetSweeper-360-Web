@@ -68,7 +68,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ kmlData, onPointClick }) => {
   };
   // Calculate some statistics
   const totalPoints = kmlData.points.length;
-  const totalVectors = kmlData.vectors?.length || 0;
   
   // Calculate bounds including both points and vectors
   let allCoordinates = [...kmlData.points.map(p => p.coordinates)];

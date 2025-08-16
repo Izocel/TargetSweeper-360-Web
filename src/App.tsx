@@ -53,59 +53,6 @@ function App() {
     return true; // If Permissions API not supported, proceed with geolocation
   };
 
-  // Function to get the most accurate position possible
-  const getAccuratePosition = (): Promise<GeolocationPosition> => {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error("Geolocation is not supported"));
-        return;
-      }
-
-      // First, try to get a quick position
-      navigator.geolocation.getCurrentPosition(
-        (quickPosition) => {
-          // Then try to get a more accurate position with watchPosition
-          const watchId = navigator.geolocation.watchPosition(
-            (accuratePosition) => {
-              // Stop watching after getting a better position
-              navigator.geolocation.clearWatch(watchId);
-
-              // Use the more accurate position if available
-              if (
-                accuratePosition.coords.accuracy < quickPosition.coords.accuracy
-              ) {
-                resolve(accuratePosition);
-              } else {
-                resolve(quickPosition);
-              }
-            },
-            (_error) => {
-              // If watch fails, use the quick position
-              navigator.geolocation.clearWatch(watchId);
-              resolve(quickPosition);
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 0,
-            }
-          );
-
-          // Fallback: use quick position after 8 seconds
-          setTimeout(() => {
-            navigator.geolocation.clearWatch(watchId);
-            resolve(quickPosition);
-          }, 8000);
-        },
-        reject,
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 0,
-        }
-      );
-    });
-  };
 
   // Set default position on page load (don't automatically request geolocation)
   useEffect(() => {
