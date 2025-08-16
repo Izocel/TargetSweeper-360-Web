@@ -5,10 +5,10 @@
 # TargetSweeper 360 Web
 
 <p align="center">
-   <a href="https://github.com/your-username/TargetSweeper-360-Web/actions/workflows/deploy.yml">
-      <img src="https://github.com/your-username/TargetSweeper-360-Web/actions/workflows/deploy.yml/badge.svg" alt="Deploy Status" />
+   <a href="https://github.com/TargetSweeper-360-Web/TargetSweeper-360-Web/actions/workflows/deploy.yml">
+      <img src="https://github.com/TargetSweeper-360-Web/TargetSweeper-360-Web/actions/workflows/deploy.yml/badge.svg" alt="Deploy Status" />
    </a>
-   <a href="https://github.com/your-username/TargetSweeper-360-Web/blob/main/LICENSE">
+   <a href="https://github.com/TargetSweeper-360-Web/TargetSweeper-360-Web/blob/main/LICENSE">
       <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" />
    </a>
 </p>
