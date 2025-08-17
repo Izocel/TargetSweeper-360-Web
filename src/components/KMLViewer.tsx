@@ -116,9 +116,6 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
     );
   }
 
-  // Remove initial position marker effect; only show marker when myPosition is set
-  console.log(kmlData);
-
   return (
     <div className="relative w-full h-full min-h-[500px]">
       {isLoading && (
