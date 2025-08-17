@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 export class DataStore {
-    static basePath = path.join(process.cwd(), 'data');
+    static basePath = 'data';
     static projectsDir = path.join(this.basePath, 'projects');
 
     static ensureDir() {
@@ -88,9 +88,12 @@ export class DataStore {
         this.cleanupProjectsDir();
         const safeName = this.getSafeFolderName(baseName);
         const uniqueSuffix = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-        const projectFolder = `${safeName}_${uniqueSuffix}`;
-        const projectDir = path.join(this.projectsDir, projectFolder);
-        return { projectDir, projectFolder, safeName };
+        const newProjectFolderName = `${safeName}_${uniqueSuffix}`;
+        const newProjectDir = path.join(this.projectsDir, newProjectFolderName);
+
+        fs.mkdirSync(newProjectDir, { recursive: true });
+
+        return newProjectDir;
     }
 
     static saveProjectFile(projectDir: string, filename: string, data: Buffer | string): string {

@@ -15,11 +15,11 @@ export class KMLController {
             return res.status(400).json({ error: 'Only KML files are allowed.' });
         }
         try {
-            const { projectDir, projectFolder } = DataStore.createProjectDir(file.originalname);
-            DataStore.saveProjectFile(projectDir, file.originalname, file.buffer);
+            const newDir = DataStore.createProjectDir(file.originalname);
+            DataStore.saveProjectFile(newDir, file.originalname, file.buffer);
             res.json({
                 name: file.originalname,
-                url: `/data/${projectFolder}/${file.originalname}`
+                url: `${newDir}/${file.originalname}`
             });
         } catch (err: any) {
             console.error('Error in /api/upload-kml:', err && err.stack ? err.stack : err);
@@ -31,17 +31,17 @@ export class KMLController {
         const project = req.body;
         try {
             const manager = new ProjectManager();
-            const { projectDir, projectFolder, safeName } = DataStore.createProjectDir(project.ProjectName);
+            const newDir = DataStore.createProjectDir(project.ProjectName);
             const generation = {
                 ProjectName: project.ProjectName,
                 Target: project.Target,
                 Sweeper: project.Sweeper,
             };
-            const output = await manager.generateProjectOutputs(generation, projectDir);
+            const output = await manager.generateProjectOutputs(generation, newDir);
             res.json({
-                kmlUrl: `/data/${projectFolder}/${path.basename(output.kmlPath)}`,
-                csvUrl: `/data/${projectFolder}/${path.basename(output.csvPath)}`,
-                kmzUrl: `/data/${projectFolder}/${path.basename(output.kmzPath)}`,
+                kmlUrl: `/${output.kmlPath}`,
+                csvUrl: `/${output.csvPath}`,
+                kmzUrl: `/${output.kmzPath}`,
                 summary: output.summary,
             });
         } catch (err: any) {
