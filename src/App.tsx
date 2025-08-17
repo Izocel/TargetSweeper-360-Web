@@ -1,130 +1,22 @@
-import { useState, useEffect, useRef } from "react";
-import Prism from "prismjs";
-import "prismjs/components/prism-json";
-import "prismjs/themes/prism.css";
-import { Target, MapPin, Upload, Settings, Info } from "lucide-react";
+import { useState, useEffect } from "react";
+
 import KMLViewer from "./components/KMLViewer";
 import Header from "./components/Header";
+import KMLLoader from "./components/KMLLoader";
+import SweeperProjectGenerator from "./components/SweeperProjectGenerator";
+import { Target, Settings, MapPin } from "lucide-react";
 
-type TargetData = {
+type KMLData = {
   name: string;
-  lat: string;
-  lng: string;
-  description?: string;
+  url: string;
 };
 
-const SweeperProjectGenerator: React.FC = () => {
-  const [projectName, setProjectName] = useState("");
-  const [description, setDescription] = useState("");
-  const [targets, setTargets] = useState<TargetData[]>([
-    { name: "", lat: "", lng: "", description: "" },
-  ]);
-  const [jsonVisible, setJsonVisible] = useState(false);
-  const jsonPreviewRef = useRef<HTMLPreElement>(null);
-
-  const handleTargetChange = (
-    idx: number,
-    field: keyof TargetData,
-    value: string
-  ) => {
-    setTargets((prev) => {
-      const copy = [...prev];
-      copy[idx] = { ...copy[idx], [field]: value };
-      return copy;
-    });
-  };
-
-  const addTarget = () => {
-    setTargets((prev) => [
-      ...prev,
-      { name: "", lat: "", lng: "", description: "" },
-    ]);
-  };
-  const removeTarget = (idx: number) => {
-    setTargets((prev) =>
-      prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev
-    );
-  };
-
-  const projectJson = {
-    name: projectName,
-    description,
-    targets: targets
-      .filter((t) => t.name && t.lat && t.lng)
-      .map((t) => ({
-        name: t.name,
-        coordinates: [parseFloat(t.lng), parseFloat(t.lat)],
-        description: t.description || undefined,
-      })),
-  };
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(JSON.stringify(projectJson, null, 2));
-    setJsonVisible(true);
-    setTimeout(() => setJsonVisible(false), 2000);
-  };
-
-  const handleDownload = () => {
-    const blob = new Blob([JSON.stringify(projectJson, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${projectName || "project"}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Prism highlight effect for JSON preview
-  useEffect(() => {
-    if (jsonPreviewRef.current) {
-      Prism.highlightElement(jsonPreviewRef.current.querySelector("code")!);
-    }
-  }, [projectName, description, targets]);
-
-  return (
-    <div>
-      <div className="flex items-center mb-4">
-        <Info className="w-5 h-5 text-military-600 mr-2" />
-        <h2 className="text-lg font-semibold text-gray-800">
-          Configure your project
-        </h2>
-      </div>
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-        {/* ...existing code... */}
-        <div className="mt-4">
-          <label className="block text-xs font-medium text-gray-500 mb-1">
-            Preview
-          </label>
-          <pre
-            ref={jsonPreviewRef}
-            className="bg-gray-100 p-2 rounded text-xs overflow-x-auto max-h-64 json-prism-preview"
-          >
-            <code className="language-json">
-              {JSON.stringify(projectJson, null, 2)}
-            </code>
-          </pre>
-          {jsonVisible && (
-            <div className="text-green-600 text-xs mt-2">
-              Copied to clipboard!
-            </div>
-          )}
-        </div>
-      </form>
-    </div>
-  );
-};
-
-interface KMLData {
-  name: string;
-  url: string; // Direct URL to the KML file
-}
-
-function App() {
-  // Tab state for loader/generator
+function App(props: any) {
+  // Tab state for loader/generator/uploader
   const [tab, setTab] = useState<"kml" | "json">("kml");
   const [kmlData, setKMLData] = useState<KMLData | null>(null);
+  // Accept externalKmlUrl from props for loading generated KML
+  const externalKmlUrl = props.externalKmlUrl;
   const [mapCenterCallback, setMapCenterCallback] = useState<
     ((lat: number, lng: number) => void) | null
   >(null);
@@ -174,26 +66,20 @@ function App() {
     setCurrentPosition({ lat: 37.7749, lng: -122.4194 });
   }, []);
 
-  const handleLoadFromURL = async (url: string) => {
-    try {
-      // Simple URL validation
-      new URL(url); // This will throw if URL is invalid
-
-      const kmlData: KMLData = {
-        name: `KML from URL`,
-        url: url,
-      };
-
-      setKMLData(kmlData);
-    } catch (error) {
-      setNotification({
-        message: `Invalid URL: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-        type: "error",
-      });
-    }
+  // Helper to load a KML URL into the map
+  const handleLoadKmlToMap = (url: string) => {
+    setKMLData({ name: "Generated KML", url });
+    // Optionally, switch to the map tab if needed
+    setTab("kml");
   };
+
+  // If externalKmlUrl changes, load it into the map
+  useEffect(() => {
+    if (externalKmlUrl) {
+      handleLoadKmlToMap(externalKmlUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalKmlUrl]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -308,84 +194,19 @@ function App() {
 
             {/* Tab Content */}
             {tab === "kml" && (
-              <div>
-                <div className="flex items-center mb-4">
-                  <Upload className="w-5 h-5 text-military-600 mr-2" />
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    Load KML File
-                  </h2>
-                </div>
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    const url = formData.get("kml-url") as string;
-                    if (url.trim()) {
-                      const form = e.currentTarget;
-                      await handleLoadFromURL(url.trim());
-                      if (form && typeof form.reset === "function") {
-                        form.reset();
-                      }
-                    }
-                  }}
-                  className="space-y-4"
-                >
-                  <div>
-                    <label
-                      htmlFor="kml-url"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      KML File URL
-                    </label>
-                    <input
-                      id="kml-url"
-                      name="kml-url"
-                      type="url"
-                      placeholder="https://example.com/sample.kml"
-                      defaultValue={import.meta.env.VITE_DEFAULT_KML_URL}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-military-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                  <button type="submit" className="btn-primary w-full">
-                    Load KML from URL
-                  </button>
-                  <p className="text-xs text-gray-500">
-                    Note: Google Maps KmlLayer URL must be publicly accessible.
-                  </p>
-                </form>
-                {/* Project Info Card */}
-                <div className="card mt-6">
-                  <div className="flex items-center mb-4">
-                    <Info className="w-5 h-5 text-military-600 mr-2" />
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      Project Info
-                    </h2>
-                  </div>
-                  {kmlData ? (
-                    <div className="space-y-2 text-sm">
-                      <div>
-                        <span className="font-medium text-gray-600">Name:</span>
-                        <span className="ml-2 text-gray-800">
-                          {kmlData.name}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-600">URL:</span>
-                        <span className="ml-2 text-gray-800 break-all text-xs">
-                          {kmlData.url}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-gray-500">
-                      Load a KML file to view project details
-                    </div>
-                  )}
-                </div>
-              </div>
+              <KMLLoader
+                onLoad={(kmlData) => {
+                  setKMLData(kmlData);
+                }}
+                defaultUrl={import.meta.env.VITE_DEFAULT_KML_URL}
+              />
             )}
-            {tab === "json" && <SweeperProjectGenerator />}
+            {tab === "json" &&
+              (props.SweeperProjectGeneratorComponent ? (
+                props.SweeperProjectGeneratorComponent({})
+              ) : (
+                <SweeperProjectGenerator onLoadKmlToMap={handleLoadKmlToMap} />
+              ))}
           </div>
         </section>
 
@@ -578,4 +399,5 @@ function App() {
   );
 }
 
+// Patch: pass loadKmlUrl to App for map loading
 export default App;
