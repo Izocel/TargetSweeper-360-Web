@@ -1,0 +1,27 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node index.ts",
+    "start": "node dist/index.js",
+    "postinstall": "npm outdated > outdated.md || echo 'Updated...'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "latest",
+    "multer": "latest",
+    "targetsweeper-360": "github:Izocel/targetsweeper-360"
+  },
+  "devDependencies": {
+    "@types/express": "latest",
+    "@types/multer": "^2.0.0",
+    "ts-node": "latest",
+    "typescript": "latest"
+  }
+}

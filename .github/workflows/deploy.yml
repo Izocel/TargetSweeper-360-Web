@@ -18,16 +18,22 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - name: Install dependencies
+      - name: Install dependencies (Client)
         run: npm ci
+
+      - name: Install dependencies (Server)
+        run: cd api && npm ci
 
       - name: Inject Google API Key into .env
         run: echo "VITE_GOOGLE_MAPS_JS_API_KEY=${{ secrets.GOOGLE_API_KEY }}" > .env
 
-      - name: Build
+      - name: Build Client
         run: npm run build
+
+      - name: Build Server
+        run: cd api && npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
