@@ -56,7 +56,7 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
         // Upload to /api/upload-kml
         const formData = new FormData();
         formData.append("file", remoteFile);
-        const response = await fetch("/api/upload-kml", {
+        const response = await fetch("/api/kml/upload", {
           method: "POST",
           body: formData,
         });
@@ -88,7 +88,7 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
       try {
         const formData = new FormData();
         formData.append("file", file);
-        const response = await fetch("/api/upload-kml", {
+        const response = await fetch("/api/kml/upload", {
           method: "POST",
           body: formData,
         });
