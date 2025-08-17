@@ -35,9 +35,6 @@ function App(props: any) {
     type: "success" | "error" | "info";
   } | null>(null);
 
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_JS_API_KEY;
-  const mapId = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
-
   // Auto-hide notification after 4 seconds
   useEffect(() => {
     if (notification) {
@@ -86,8 +83,7 @@ function App(props: any) {
 
   return (
     <LoadScript
-      googleMapsApiKey={apiKey}
-      mapIds={mapId ? [mapId] : undefined}
+      googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_JS_API_KEY}
       libraries={GOOGLE_MAPS_LIBRARIES}
     >
       <div className="min-h-screen bg-gray-50">

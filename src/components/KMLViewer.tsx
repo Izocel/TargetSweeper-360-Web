@@ -27,8 +27,6 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
 
   // Default center: San Francisco, but use myPosition if available
   const defaultCenter = myPosition || { lat: 37.7749, lng: -122.4194 };
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_JS_API_KEY;
-  const mapId = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
 
   // Use myPosition from props
   const myMarkerRef = useRef<any>(null);
@@ -91,19 +89,6 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
     },
     [onMapReady]
   );
-
-  if (!apiKey) {
-    return (
-      <div className="flex flex-col h-full bg-red-50 text-red-600 p-4 rounded-lg">
-        <div className="text-center max-w-md mx-auto mb-6">
-          <p className="font-semibold mb-2">Google Maps API key not found.</p>
-          <p className="text-sm mb-4">
-            Please check your environment variables.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
