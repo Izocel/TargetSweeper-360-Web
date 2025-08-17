@@ -9,7 +9,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "serve": "vite preview --port 4173",
-    "express": "node server.js"
+    "express": "node server.js",
+    "postinstall": "npm outdated > outdated.md || echo 'Updated...'"
   },
   "keywords": [
     "tactical",

@@ -39,14 +39,45 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
     e.preventDefault();
     setError(null);
     if (mode === "url") {
+      setIsUploading(true);
       try {
         new URL(url); // Validate URL
-        const kml = { name: "KML from URL", url };
-        onLoad(kml);
-        setLoadedKml(kml);
+        // Fetch the remote KML file as a blob
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error("Failed to fetch remote KML file");
+        const blob = await resp.blob();
+        // Try to get filename from URL
+        let filename = url.split("/").pop() || "remote.kml";
+        if (!filename.endsWith(".kml")) filename += ".kml";
+        // Create a File object from the blob
+        const remoteFile = new File([blob], filename, {
+          type: blob.type || "application/vnd.google-earth.kml+xml",
+        });
+        // Upload to /api/upload-kml
+        const formData = new FormData();
+        formData.append("file", remoteFile);
+        const response = await fetch("/api/upload-kml", {
+          method: "POST",
+          body: formData,
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to upload KML");
+        }
+        const data = await response.json();
+        onLoad(data);
+        setLoadedKml(data);
         setUrl("");
-      } catch (err) {
-        setError("Invalid URL");
+      } catch (err: any) {
+        setError(err.message || "Unknown error");
+        // Try to load the remote URL directly in the map anyway
+        if (url) {
+          const fallback = { name: url, url };
+          onLoad(fallback);
+          setLoadedKml(fallback);
+        }
+      } finally {
+        setIsUploading(false);
       }
     } else if (mode === "file") {
       if (!file) {
@@ -127,7 +158,7 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
               name="kml-url"
               type="url"
               placeholder="https://example.com/sample.kml"
-              value={url}
+              value={url ?? ""}
               onChange={(e) => setUrl(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-military-500 focus:border-transparent"
               required
@@ -150,6 +181,7 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
               accept=".kml,application/vnd.google-earth.kml+xml"
               onChange={handleFileChange}
               className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-military-50 file:text-military-700 hover:file:bg-military-100"
+              value="" // Note: value attribute for file inputs is not standard, but included for consistency
             />
             <p className="text-xs text-gray-500 mt-1">
               Only KML files are accepted. Uploaded files will be available for

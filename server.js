@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
+import { ProjectManager } from 'targetsweeper-360';
 
 const app = express();
 const PORT = process.env.PORT || 4000;

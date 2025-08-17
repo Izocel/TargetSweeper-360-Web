@@ -1,0 +1,3 @@
+Package      Current  Wanted  Latest  Location                  Depended by
+tailwindcss   3.4.17  3.4.17  4.1.12  node_modules/tailwindcss  TargetSweeper-360-Web
+typescript     5.8.3   5.8.3   5.9.2  node_modules/typescript   TargetSweeper-360-Web
