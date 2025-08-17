@@ -117,6 +117,7 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
   }
 
   // Remove initial position marker effect; only show marker when myPosition is set
+  console.log(kmlData);
 
   return (
     <div className="relative w-full h-full min-h-[500px]">
@@ -133,16 +134,6 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
         center={defaultCenter}
         zoom={myPosition ? 15 : 10}
         onLoad={handleOnLoad}
-        options={{
-          mapTypeId: "roadmap",
-          zoomControl: true,
-          mapTypeControl: true,
-          scaleControl: true,
-          streetViewControl: true,
-          rotateControl: true,
-          fullscreenControl: true,
-          mapId: mapId || undefined,
-        }}
       >
         {/* KML Layer */}
         {kmlData && kmlData.url && (
