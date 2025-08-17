@@ -11,11 +11,11 @@ export default defineConfig({
     port: 4173,
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
-      '/downloads': {
-        target: 'http://localhost:4000',
+      '/data': {
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },
