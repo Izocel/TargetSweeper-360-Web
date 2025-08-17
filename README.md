@@ -4,6 +4,12 @@
 
 # TargetSweeper 360 Web
 
+## 🚀 Demo
+
+You can try the TargetSweeper-360 Web client app live in your browser:
+
+👉 [GitHub Pages Demo](https://izocel.github.io/TargetSweeper-360-Web/) — This deployment is for demonstration purposes and allows you to interact with the client app without any setup.
+
 <p align="center">
    <a href="https://github.com/TargetSweeper-360-Web/TargetSweeper-360-Web/actions/workflows/deploy.yml">
       <img src="https://github.com/TargetSweeper-360-Web/TargetSweeper-360-Web/actions/workflows/deploy.yml/badge.svg" alt="Deploy Status" />
