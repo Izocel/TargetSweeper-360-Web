@@ -1,0 +1,58 @@
+{
+    "name": "TargetSweeper 360 Web",
+    "short_name": "TargetSweeper360",
+    "description": "KML Viewer with accurate GPS positioning for tactical and mapping applications",
+    "start_url": "/",
+    "display": "standalone",
+    "display_override": [
+        "window-controls-overlay",
+        "standalone"
+    ],
+    "background_color": "#ffffff",
+    "theme_color": "#4F46E5",
+    "orientation": "any",
+    "scope": "/",
+    "lang": "en",
+    "categories": [
+        "navigation",
+        "utilities",
+        "productivity"
+    ],
+    "icons": [
+        {
+            "src": "/TargetSweeper-360-Web/icon-base.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "file_handlers": [
+        {
+            "action": "/",
+            "accept": {
+                "application/vnd.google-earth.kml+xml": [
+                    ".kml"
+                ],
+                "application/vnd.google-earth.kmz": [
+                    ".kmz"
+                ]
+            }
+        }
+    ],
+    "protocol_handlers": [
+        {
+            "protocol": "geo",
+            "url": "/?geo=%s"
+        }
+    ],
+    "permissions": [
+        "geolocation"
+    ],
+    "features": [
+        "geolocation"
+    ],
+    "prefer_related_applications": false,
+    "edge_side_panel": {
+        "preferred_width": 400
+    }
+}

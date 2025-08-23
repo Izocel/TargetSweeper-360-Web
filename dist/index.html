@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<script type="module" crossorigin src="/TargetSweeper-360-Web/assets/index-DsZz4GF7.js"></script>
+<link rel="stylesheet" crossorigin href="/TargetSweeper-360-Web/assets/index-BMcyMKEb.css">
+
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/TargetSweeper-360-Web/icon-base.svg" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+
+    <!-- Theme and color scheme -->
+    <meta name="theme-color" content="#4F46E5" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#1e1b4b"
+    />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- App description -->
+    <meta
+      name="description"
+      content="KML Viewer with accurate GPS positioning for tactical and mapping applications"
+    />
+    <meta
+      name="keywords"
+      content="KML, GPS, tactical, mapping, geolocation, navigation, search rescue"
+    />
+    <meta name="author" content="TargetSweeper 360" />
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/TargetSweeper-360-Web/manifest.json" />
+
+    <!-- Native PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="TargetSweeper360" />
+    <meta name="msapplication-TileColor" content="#4F46E5" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/TargetSweeper-360-Web/icon-base.svg" />
+    <link rel="mask-icon" href="/TargetSweeper-360-Web/icon-base.svg" color="#4F46E5" />
+
+    <!-- Windows Tiles -->
+    <meta name="msapplication-TileImage" content="/TargetSweeper-360-Web/icon-base.svg" />
+    <meta name="msapplication-square70x70logo" content="/TargetSweeper-360-Web/icon-base.svg" />
+    <meta name="msapplication-square150x150logo" content="/TargetSweeper-360-Web/icon-base.svg" />
+    <meta name="msapplication-square310x310logo" content="/TargetSweeper-360-Web/icon-base.svg" />
+
+    <!-- Security and Permissions -->
+    <meta
+      http-equiv="Permissions-Policy"
+      content="geolocation=self, camera=(), microphone=()"
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' http://172.28.16.1:4173 https: wss:; frame-src https://www.google.com;"
+    />
+
+    <!-- Performance hints -->
+    <link rel="preconnect" href="https://maps.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//maps.googleapis.com" />
+
+    <!-- PWA Status Bar -->
+    <style>
+      /* Hide default scrollbars for more native feel */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+
+      /* Loading screen - Tailwind inspired, green military theme */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #2d9a2d 0%, #1e7e1e 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: #fff;
+        font-family: 'tactical', Arial, sans-serif;
+      }
+
+      .loading-logo {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 20px;
+        animation: pulse 2s infinite;
+        background: #1e7e1e;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px 0 #1a651a44;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+      }
+
+      .loading-text {
+        font-size: 1.2em;
+        font-weight: 600;
+        opacity: 0.95;
+        letter-spacing: 0.01em;
+        color: #bce5bc;
+        text-shadow: 0 2px 8px #18511888;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.8;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.05);
+        }
+      }
+
+
+      /* Hide loading screen when app is ready */
+      .app-loaded #loading-screen {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+      }
+    </style>
+
+    <div id="loading-screen">
+      <div class="loading-logo">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="#bce5bc" stroke-width="2" fill="#1e7e1e" />
+          <circle cx="12" cy="12" r="6" stroke="#bce5bc" stroke-width="1.5" fill="none" />
+          <circle cx="12" cy="12" r="2" fill="#bce5bc" />
+          <line x1="12" y1="4" x2="12" y2="20" stroke="#bce5bc" stroke-width="1.5" />
+          <line x1="4" y1="12" x2="20" y2="12" stroke="#bce5bc" stroke-width="1.5" />
+        </svg>
+      </div>
+      <div class="loading-text">Loading TargetSweeper 360...</div>
+    </div>
+
+    <div id="root"></div>
+
+    <script>
+      // Hide loading screen when app is ready
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          document.body.classList.add("app-loaded");
+        }, 500);
+      });
+
+      // PWA display mode detection
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        document.documentElement.classList.add("pwa-standalone");
+      }
+
+      // Prevent zoom on iOS
+      document.addEventListener("gesturestart", (e) => e.preventDefault());
+      document.addEventListener("gesturechange", (e) => e.preventDefault());
+    </script>
+
+  </body>
+</html>
