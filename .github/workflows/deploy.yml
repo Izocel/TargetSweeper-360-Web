@@ -26,8 +26,9 @@ jobs:
       - name: Install dependencies (Server)
         run: cd api && npm ci
 
-      - name: Inject Google API Key into .env
-        run: echo "VITE_GOOGLE_MAPS_JS_API_KEY=${{ secrets.GOOGLE_API_KEY }}" > .env
+      - name: Inject Secrets into .env
+        run: |
+          echo "${{ secrets.ENV }}" > .env
 
       - name: Build Client
         run: npm run build
