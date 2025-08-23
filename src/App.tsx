@@ -199,6 +199,10 @@ function App(props: any) {
             {tab === "kml" && (
               <KMLLoader
                 onLoad={(kmlData) => {
+                  if (!kmlData) {
+                    setKMLData(undefined);
+                    return;
+                  }
                   setKMLData({
                     ...kmlData,
                     url: kmlData.url + "?t=" + Date.now(),
@@ -214,20 +218,6 @@ function App(props: any) {
               ) : (
                 <SweeperProjectGenerator onLoadKmlToMap={handleLoadKmlToMap} />
               ))}
-          </div>
-        </section>
-
-        {/* Map Viewer - Full width */}
-        <section className="mb-6">
-          <div className="card">
-            <div className="flex items-center mb-4">
-              <Target className="w-5 h-5 text-military-600 mr-2" />
-              <h2 className="text-lg font-semibold text-gray-800">Viewer</h2>
-            </div>
-
-            <div className="map-container">
-              <KMLViewer kmlData={kmlData} userPosition={userPosition} />
-            </div>
           </div>
         </section>
 
@@ -382,20 +372,22 @@ function App(props: any) {
                 <MapPin className="w-4 h-4 mr-2" />
                 My Position
               </button>
-
-              {/* Position accuracy display */}
-              {userPosition && positionAccuracy && (
-                <div className="text-xs text-gray-500 text-center">
-                  <div>Lat: {userPosition.lat.toFixed(6)}</div>
-                  <div>Lng: {userPosition.lng.toFixed(6)}</div>
-                  <div>Accuracy: ±{Math.round(positionAccuracy)}m</div>
-                </div>
-              )}
             </div>
           </div>
         </section>
 
-        {/* Note: InfoPanel removed since we're letting Google Maps handle KML parsing */}
+        <section className="mb-6">
+          <div className="card">
+            <div className="flex items-center mb-4">
+              <Target className="w-5 h-5 text-military-600 mr-2" />
+              <h2 className="text-lg font-semibold text-gray-800">Viewer</h2>
+            </div>
+
+            <div className="map-container">
+              <KMLViewer kmlData={kmlData} userPosition={userPosition} />
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );

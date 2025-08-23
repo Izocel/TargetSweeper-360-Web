@@ -7,7 +7,7 @@ interface KMLData {
 }
 
 interface KMLLoaderProps {
-  onLoad: (kmlData: KMLData) => void;
+  onLoad: (kmlData: KMLData | null) => void;
   defaultUrl?: string;
 }
 
@@ -39,45 +39,14 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
     e.preventDefault();
     setError(null);
     if (mode === "url") {
-      setIsUploading(true);
       try {
         new URL(url); // Validate URL
-        // Fetch the remote KML file as a blob
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error("Failed to fetch remote KML file");
-        const blob = await resp.blob();
-        // Try to get filename from URL
-        let filename = url.split("/").pop() || "remote.kml";
-        if (!filename.endsWith(".kml")) filename += ".kml";
-        // Create a File object from the blob
-        const remoteFile = new File([blob], filename, {
-          type: blob.type || "application/vnd.google-earth.kml+xml",
-        });
-        // Upload to /api/upload-kml
-        const formData = new FormData();
-        formData.append("file", remoteFile);
-        const response = await fetch("/api/kml/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to upload KML");
-        }
-        const data = await response.json();
-        onLoad(data);
-        setLoadedKml(data);
+        const kmlData = { name: url.split("/").pop() || url, url };
+        onLoad(kmlData);
+        setLoadedKml(kmlData);
         setUrl("");
       } catch (err: any) {
-        setError(err.message || "Unknown error");
-        // Try to load the remote URL directly in the map anyway
-        if (url) {
-          const fallback = { name: url, url };
-          onLoad(fallback);
-          setLoadedKml(fallback);
-        }
-      } finally {
-        setIsUploading(false);
+        setError("Invalid URL");
       }
     } else if (mode === "file") {
       if (!file) {
@@ -106,6 +75,12 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
         setIsUploading(false);
       }
     }
+  };
+
+  // Unload KML handler
+  const handleUnload = () => {
+    setLoadedKml(null);
+    onLoad(null);
   };
 
   return (
@@ -223,11 +198,11 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
             KML Details
           </div>
           <div className="text-sm text-gray-700 mb-1">
-            <span className="font-medium">Name:</span> {loadedKml.name}
-          </div>
-          <div className="text-sm text-gray-700 mb-1">
             <span className="font-medium">Source:</span>{" "}
             {loadedKml.url.startsWith("http") ? "Remote URL" : "Uploaded File"}
+          </div>
+          <div className="text-sm text-gray-700 mb-1">
+            <span className="font-medium">Name:</span> {loadedKml.name}
           </div>
           <div className="text-sm text-gray-700 mb-3 break-all">
             <span className="font-medium">URL:</span>{" "}
@@ -240,15 +215,13 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
               {loadedKml.url}
             </a>
           </div>
-          <a
-            href={loadedKml.url}
-            download
-            className="inline-block px-4 py-2 bg-military-600 text-white rounded hover:bg-military-700 transition-colors text-sm font-medium"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            className="btn-secondary w-full mt-2"
+            onClick={handleUnload}
+            type="button"
           >
-            Download KML
-          </a>
+            Unload KML
+          </button>
         </div>
       )}
     </div>

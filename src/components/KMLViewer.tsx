@@ -27,29 +27,46 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [kmlLayer, setKmlLayer] = useState<google.maps.KmlLayer | null>(null);
+  const [kml, setKml] = useState<google.maps.KmlLayer | null>(null);
 
   useEffect(() => {
     if (!isLoaded) return;
+    console.log("Data changed:");
+    console.log("KML Data:", kmlData);
+    console.log("User Position:", userPosition);
 
-    if (userPosition && map) {
+    fitBounds();
+  }, [userPosition, kmlData]);
+
+  function fitBounds() {
+    if (map && userPosition) {
       const bounds = new window.google.maps.LatLngBounds(userPosition);
+      if (kml && kmlData) {
+        const kmlBounds = kml.getDefaultViewport()?.getNorthEast();
+        if (kmlBounds) {
+          bounds.extend(kmlBounds);
+        }
+      }
+
       map.fitBounds(bounds);
     }
-  }, [userPosition]);
-
-  function handleMapLoaded(instance: google.maps.Map) {
-    console.log("MMMMMMMMMMMMMMMMM");
-
-    const bounds = new window.google.maps.LatLngBounds(userPosition);
-    instance.fitBounds(bounds);
-
-    setMap(instance);
   }
 
-  function handleKmlLoaded(instance: google.maps.KmlLayer) {
-    console.log("KKKKKKKKKKKKKKKKKKKKK");
-    setKmlLayer(instance);
+  function handleMapLoaded(instance: google.maps.Map) {
+    console.log("Map Layer loaded");
+    setMap(instance);
+    fitBounds();
+  }
+
+  function handleKmlLoad(instance: google.maps.KmlLayer) {
+    console.log("KML Layer loaded");
+    setKml(instance);
+    fitBounds();
+  }
+
+  function handleKmlStatusChanged() {
+    console.log("KML Layer status changed:");
+    fitBounds();
   }
 
   function renderMapLoading() {
@@ -86,7 +103,11 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
         mapContainerClassName="w-full h-full min-h-[500px] rounded-lg"
         onLoad={handleMapLoaded}
       >
-        <KmlLayer onLoad={handleKmlLoaded} />
+        <KmlLayer
+          url={kmlData?.url}
+          onLoad={handleKmlLoad}
+          onStatusChanged={handleKmlStatusChanged}
+        />
         <Marker position={userPosition} />
       </GoogleMap>
     );
