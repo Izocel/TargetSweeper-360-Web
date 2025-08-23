@@ -20,7 +20,7 @@
     ],
     "icons": [
         {
-            "src": "/TargetSweeper-360-Web/icon-base.svg",
+            "src": "icon-base.svg",
             "sizes": "any",
             "type": "image/svg+xml",
             "purpose": "any maskable"
