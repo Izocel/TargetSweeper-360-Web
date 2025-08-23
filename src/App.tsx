@@ -1,15 +1,9 @@
-import { useState, useEffect } from "react";
-import type { Library } from "@googlemaps/js-api-loader";
-
-// Google Maps libraries to load (must be static to avoid LoadScript reloads)
-const GOOGLE_MAPS_LIBRARIES: Library[] = ["marker"];
-import { LoadScript } from "@react-google-maps/api";
-
-import KMLViewer from "./components/KMLViewer";
+import { MapPin, Settings, Target } from "lucide-react";
+import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import KMLLoader from "./components/KMLLoader";
+import KMLViewer from "./components/KMLViewer";
 import SweeperProjectGenerator from "./components/SweeperProjectGenerator";
-import { Target, Settings, MapPin } from "lucide-react";
 
 type KMLData = {
   name: string;
@@ -22,7 +16,7 @@ function App(props: any) {
   const [kmlData, setKMLData] = useState<KMLData | undefined>();
   // Accept externalKmlUrl from props for loading generated KML
   const externalKmlUrl = props.externalKmlUrl;
-  const [mapCenterCallback, setMapCenterCallback] = useState<
+  const [mapCenterCallback] = useState<
     ((lat: number, lng: number) => void) | null
   >(null);
   const [userPosition, setUserPosition] = useState<
@@ -32,7 +26,9 @@ function App(props: any) {
       }
     | undefined
   >();
-  const [positionAccuracy, setPositionAccuracy] = useState<number | null>(null);
+  const [_positionAccuracy, setPositionAccuracy] = useState<number | null>(
+    null
+  );
   const [notification, setNotification] = useState<{
     message: string;
     type: "success" | "error" | "info";

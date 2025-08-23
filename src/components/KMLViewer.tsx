@@ -1,12 +1,16 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Loader as LoaderIcon } from "lucide-react";
+import type { Library } from "@googlemaps/js-api-loader";
 import {
   GoogleMap,
   KmlLayer,
   Marker,
   useJsApiLoader,
 } from "@react-google-maps/api";
+import { Loader as LoaderIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import "./KMLViewer.css";
+
+// Google Maps libraries to load (must be static to avoid LoadScript reloads)
+const GOOGLE_MAPS_LIBRARIES: Library[] = ["marker"];
 
 interface KMLData {
   name: string;
@@ -24,6 +28,7 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_JS_API_KEY,
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
