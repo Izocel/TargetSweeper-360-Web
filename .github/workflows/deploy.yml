@@ -23,18 +23,12 @@ jobs:
       - name: Install dependencies (Client)
         run: npm ci
 
-      - name: Install dependencies (Server)
-        run: cd api && npm ci
-
       - name: Inject Secrets into .env
         run: |
           echo "${{ secrets.ENV }}" > .env
 
       - name: Build Client
         run: npm run build
-
-      - name: Build Server
-        run: cd api && npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
