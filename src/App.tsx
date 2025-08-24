@@ -46,7 +46,7 @@ function App(props: any) {
 
   // Function to check and request geolocation permission
   const requestGeolocationPermission = async (): Promise<boolean> => {
-    // Check if Permissions API is supported
+    // Check if Permissions T360Api is supported
     if ("permissions" in navigator) {
       try {
         const permission = await navigator.permissions.query({
@@ -55,12 +55,12 @@ function App(props: any) {
         return permission.state === "granted" || permission.state === "prompt";
       } catch (error) {
         console.log(
-          "Permissions API not fully supported, proceeding with geolocation request"
+          "Permissions T360Api not fully supported, proceeding with geolocation request"
         );
         return true; // Fallback to attempting geolocation directly
       }
     }
-    return true; // If Permissions API not supported, proceed with geolocation
+    return true; // If Permissions T360Api not supported, proceed with geolocation
   };
 
   // Do not set userPosition on page load; wait for user action
