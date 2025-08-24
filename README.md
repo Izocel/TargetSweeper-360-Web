@@ -8,7 +8,7 @@
 
 You can try the TargetSweeper-360 Web client app live in your browser:
 
-👉 [GitHub Pages Demo](https://izocel.github.io/TargetSweeper-360-Web/) — This deployment is for demonstration purposes and allows you to interact with the client app without any setup.
+👉 [Demo](https://rvdprojects.synology.me:4173/) — This deployment is for demonstration purposes and allows you to interact with the client app without any setup.
 
 <p align="center">
    <a href="https://github.com/TargetSweeper-360-Web/TargetSweeper-360-Web/actions/workflows/deploy.yml">
@@ -54,7 +54,7 @@ You can try the TargetSweeper-360 Web client app live in your browser:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/TargetSweeper-360-Web.git
+   git clone https://github.com/izocel/TargetSweeper-360-Web.git
    cd TargetSweeper-360-Web
    ```
 2. **Install dependencies:**
