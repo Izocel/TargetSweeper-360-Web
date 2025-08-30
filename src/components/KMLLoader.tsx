@@ -1,5 +1,9 @@
 import { Upload } from "lucide-react";
-import { useState } from "react";
+import Prism from "prismjs";
+import { useEffect, useState } from "react";
+import { PutFileProjectRequest } from "targetsweeper-360";
+import { T360Api } from "../api";
+import CopyableCodeBlock from "./CopyableCodeBlock";
 import type { KmlData } from "./SweeperProjectGenerator";
 
 interface KMLLoaderProps {
@@ -11,76 +15,91 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
   onLoadKmlToMap,
   defaultUrl,
 }) => {
-  const [mode, setMode] = useState<"url" | "file">("url");
   const [url, setUrl] = useState(defaultUrl || "");
-  const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [mode, setMode] = useState<"url" | "file">("url");
   const [loadedKml, setLoadedKml] = useState<KmlData | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError(null);
-    if (e.target.files && e.target.files.length > 0) {
-      const selected = e.target.files[0];
-      if (
-        selected.type !== "application/vnd.google-earth.kml+xml" ||
-        !selected.name.endsWith(".kml")
-      ) {
-        setError("Only KML files are allowed.");
-        setFile(null);
-        return;
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const [apiRequest, setApiRequest] = useState<PutFileProjectRequest | null>();
+
+  useEffect(() => {
+    // Highlight JSON preview after each render
+    Prism.highlightAll();
+  });
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setApiError(null);
+
+    try {
+      const apiRequest = new PutFileProjectRequest({
+        file: e.target.files?.length ? e.target.files[0] : null,
+      } as any);
+
+      if (!apiRequest?.isValid) {
+        throw {
+          response: {
+            data: { apiRequest },
+          },
+        };
       }
-      setFile(selected);
+
+      setApiRequest(apiRequest);
+    } catch (error: any) {
+      setApiError(error?.response?.data ?? error);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    setIsUploading(true);
+
+    try {
+      const response = await T360Api.Projects.putFile(apiRequest);
+      debugger;
+      const name = response.data.path.split("/").pop();
+
+      const kmlData = {
+        name: name,
+        url: new URL(response.data.path).toString(),
+      };
+
+      setLoadedKml(kmlData);
+      setApiRequest(null);
+      //onLoadKmlToMap(kmlData);
+    } catch (error: any) {
+      debugger;
+      setApiError(error?.response?.data ?? error);
+    }
+
+    setIsUploading(false);
+  };
+
+  const handleUrlLoad = () => {
+    try {
+      const urlObj = new URL(url);
+      const kmlData = {
+        name: urlObj.pathname.split("/").pop() || url,
+        url: urlObj.toString(),
+      };
+      onLoadKmlToMap(kmlData);
+      setLoadedKml(kmlData);
+    } catch (error: any) {
+      setApiError(error.message || "Unknown error");
     }
   };
 
   const handleLoad = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setApiError(null);
 
     switch (mode) {
       case "url":
-        try {
-          const urlObj = new URL(url); // Validate URL
-          const kmlData = {
-            name: urlObj.pathname.split("/").pop() || url,
-            url: urlObj.toString(),
-          };
-          onLoadKmlToMap(kmlData);
-          setLoadedKml(kmlData);
-        } catch (err: any) {
-          setError("Invalid URL");
-        }
+        handleUrlLoad();
         break;
-
       case "file":
-        if (!file) {
-          setError("Please select a KML file to upload.");
-          return;
-        }
-        setIsUploading(true);
-        try {
-          const formData = new FormData();
-          formData.append("file", file);
-          const response = await fetch("/api/kml/upload", {
-            method: "POST",
-            body: formData,
-          });
-          if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
-            throw new Error(err.error || "Failed to upload KML");
-          }
-          const data = await response.json();
-          onLoadKmlToMap(data);
-          setLoadedKml(data);
-          setFile(null);
-        } catch (err: any) {
-          setError(err.message || "Unknown error");
-        } finally {
-          setIsUploading(false);
-        }
+        await handleFileUpload();
         break;
-
       default:
         break;
     }
@@ -88,9 +107,26 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
 
   // Unload KML handler
   const handleUnload = () => {
+    setApiRequest(null);
     setLoadedKml(null);
+    setApiError(null);
     onLoadKmlToMap();
   };
+
+  function renderApiErrors() {
+    if (!apiError) return null;
+
+    return (
+      <div className="mt-2">
+        <label className="block text-xs font-medium text-red-500 text-bold mb-1">
+          Request errors:
+        </label>
+        <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto max-h-64 json-prism-preview">
+          <CopyableCodeBlock value={JSON.stringify(apiError, null, 2)} />
+        </pre>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -163,7 +199,7 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
               id="kml-file"
               type="file"
               accept=".kml,application/vnd.google-earth.kml+xml"
-              onChange={handleFileChange}
+              onChange={handleFileInput}
               className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-military-50 file:text-military-700 hover:file:bg-military-100"
             ></input>
             <p className="text-xs text-gray-500 mt-1">
@@ -183,7 +219,7 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
             ? "Load KML from URL"
             : "Upload and Load KML"}
         </button>
-        {error && <div className="text-red-600 text-xs mt-2">{error}</div>}
+        {renderApiErrors()}
       </form>
 
       {/* KML Details and Download Options */}
