@@ -1,30 +1,29 @@
-import { useState } from "react";
 import { Upload } from "lucide-react";
-
-interface KMLData {
-  name: string;
-  url: string;
-}
+import { useState } from "react";
+import type { KmlData } from "./SweeperProjectGenerator";
 
 interface KMLLoaderProps {
-  onLoad: (kmlData: KMLData | null) => void;
+  onLoadKmlToMap: (data?: KmlData) => void;
   defaultUrl?: string;
 }
 
-const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
+const KMLLoader: React.FC<KMLLoaderProps> = ({
+  onLoadKmlToMap,
+  defaultUrl,
+}) => {
   const [mode, setMode] = useState<"url" | "file">("url");
   const [url, setUrl] = useState(defaultUrl || "");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [loadedKml, setLoadedKml] = useState<KMLData | null>(null);
+  const [loadedKml, setLoadedKml] = useState<KmlData | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
     if (e.target.files && e.target.files.length > 0) {
       const selected = e.target.files[0];
       if (
-        selected.type !== "application/vnd.google-earth.kml+xml" &&
+        selected.type !== "application/vnd.google-earth.kml+xml" ||
         !selected.name.endsWith(".kml")
       ) {
         setError("Only KML files are allowed.");
@@ -38,49 +37,59 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
   const handleLoad = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (mode === "url") {
-      try {
-        new URL(url); // Validate URL
-        const kmlData = { name: url.split("/").pop() || url, url };
-        onLoad(kmlData);
-        setLoadedKml(kmlData);
-        setUrl("");
-      } catch (err: any) {
-        setError("Invalid URL");
-      }
-    } else if (mode === "file") {
-      if (!file) {
-        setError("Please select a KML file to upload.");
-        return;
-      }
-      setIsUploading(true);
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        const response = await fetch("/api/kml/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to upload KML");
+
+    switch (mode) {
+      case "url":
+        try {
+          const urlObj = new URL(url); // Validate URL
+          const kmlData = {
+            name: urlObj.pathname.split("/").pop() || url,
+            url: urlObj.toString(),
+          };
+          onLoadKmlToMap(kmlData);
+          setLoadedKml(kmlData);
+        } catch (err: any) {
+          setError("Invalid URL");
         }
-        const data = await response.json();
-        onLoad(data);
-        setLoadedKml(data);
-        setFile(null);
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
-      } finally {
-        setIsUploading(false);
-      }
+        break;
+
+      case "file":
+        if (!file) {
+          setError("Please select a KML file to upload.");
+          return;
+        }
+        setIsUploading(true);
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+          const response = await fetch("/api/kml/upload", {
+            method: "POST",
+            body: formData,
+          });
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error || "Failed to upload KML");
+          }
+          const data = await response.json();
+          onLoadKmlToMap(data);
+          setLoadedKml(data);
+          setFile(null);
+        } catch (err: any) {
+          setError(err.message || "Unknown error");
+        } finally {
+          setIsUploading(false);
+        }
+        break;
+
+      default:
+        break;
     }
   };
 
   // Unload KML handler
   const handleUnload = () => {
     setLoadedKml(null);
-    onLoad(null);
+    onLoadKmlToMap();
   };
 
   return (
@@ -139,7 +148,7 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
               required
             />
             <p className="text-xs text-gray-500 mt-1">
-              Note: Google Maps KmlLayer URL must be publicly accessible.
+              Note: URL must be over `https` and publicly accessible.
             </p>
           </div>
         ) : (
@@ -156,11 +165,10 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({ onLoad, defaultUrl }) => {
               accept=".kml,application/vnd.google-earth.kml+xml"
               onChange={handleFileChange}
               className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-military-50 file:text-military-700 hover:file:bg-military-100"
-              value="" // Note: value attribute for file inputs is not standard, but included for consistency
-            />
+            ></input>
             <p className="text-xs text-gray-500 mt-1">
-              Only KML files are accepted. Uploaded files will be available for
-              download and map loading.
+              Only KML files are accepted. Uploaded files will be become
+              publicly accessible to anyone.
             </p>
           </div>
         )}

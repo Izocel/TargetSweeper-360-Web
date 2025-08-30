@@ -2,7 +2,7 @@ import { Compass, Info } from "lucide-react";
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
 import "prismjs/themes/prism.css";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LabelFormat,
   LabelFormatter,
@@ -11,6 +11,12 @@ import {
   Target,
 } from "targetsweeper-360";
 import { T360Api } from "../api";
+import CopyableCodeBlock from "./CopyableCodeBlock";
+
+export interface KmlData {
+  name: string;
+  url: string;
+}
 
 const LabelFormatOptions = Object.entries(LabelFormat).map(([key, value]) => {
   const example = LabelFormatter.getExamples()[value]?.[0] || "";
@@ -32,7 +38,7 @@ const LabelFormatOptions = Object.entries(LabelFormat).map(([key, value]) => {
 });
 
 interface SweeperProjectGeneratorProps {
-  onLoadKmlToMap: (url: string) => void;
+  onLoadKmlToMap: (data?: KmlData) => void;
 }
 
 const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
@@ -231,9 +237,7 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
           Request errors:
         </label>
         <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto max-h-64 json-prism-preview">
-          <code className="language-json">
-            {JSON.stringify(apiError, null, 2)}
-          </code>
+          <CopyableCodeBlock value={JSON.stringify(apiError, null, 2)} />
         </pre>
       </div>
     );
@@ -243,22 +247,23 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
     if (!apiResult) return null;
 
     const { projectName, summary, files } = apiResult;
-    const url = `${
-      import.meta.env.VITE_API_URL
-    }/api/projects?name=${projectName}`;
+    const kmlData = {
+      name: projectName,
+      url: `${import.meta.env.VITE_API_URL}/api/projects?name=${projectName}`,
+    };
 
     const fileButtons = files.map((file, index) => {
       const extension = file.path.split(".").pop();
       const link = document.createElement("a");
       link.setAttribute("target", "_blank");
-      link.setAttribute("href", `${url}&type=${extension}`);
+      link.setAttribute("href", `${kmlData.url}&type=${extension}`);
       document.body.appendChild(link);
 
       return (
         <button
           key={index}
           type="button"
-          className="btn-primary mr-2"
+          className="btn-primary mr-2 mb-2"
           onClick={() => {
             link.click();
             link.remove();
@@ -275,7 +280,7 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
         <button
           type="button"
           className="btn-primary w-full max-w-lg"
-          onClick={() => onLoadKmlToMap(url)}
+          onClick={() => onLoadKmlToMap(kmlData)}
         >
           Load into Map 🎯
         </button>
@@ -283,9 +288,9 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
 
         <div className="mt-2">
           <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto max-h-64 json-prism-preview">
-            <code className="language-json">
-              {JSON.stringify({ projectName, url, summary }, null, 2)}
-            </code>
+            <CopyableCodeBlock
+              value={JSON.stringify({ ...kmlData, summary }, null, 2)}
+            />
           </pre>
         </div>
       </div>
@@ -387,11 +392,7 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
           <label className="block text-xs font-medium text-gray-500 mb-1 text-bold">
             Preview:
           </label>
-          <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto max-h-64 json-prism-preview">
-            <code className="language-json">
-              {JSON.stringify(requestData, null, 2)}
-            </code>
-          </pre>
+          <CopyableCodeBlock value={JSON.stringify(requestData, null, 2)} />
         </div>
         <div className="mt-4 flex flex-col gap-2">
           <button

@@ -19,12 +19,9 @@ interface KMLData {
 
 interface KMLViewerProps {
   kmlData?: KMLData;
-  userPosition?: { lat: number; lng: number };
+  userPosition?: GeolocationCoordinates;
 }
-const KMLViewer: React.FC<KMLViewerProps> = ({
-  kmlData,
-  userPosition = { lat: 0, lng: 0 },
-}) => {
+const KMLViewer: React.FC<KMLViewerProps> = ({ kmlData, userPosition }) => {
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_JS_API_KEY,
@@ -45,7 +42,12 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
 
   function fitBounds() {
     if (map && userPosition) {
-      const bounds = new window.google.maps.LatLngBounds(userPosition);
+      const bounds = new window.google.maps.LatLngBounds({
+        north: userPosition.latitude + 0.01,
+        south: userPosition.latitude - 0.01,
+        east: userPosition.longitude + 0.01,
+        west: userPosition.longitude - 0.01,
+      });
       if (kml && kmlData) {
         const kmlBounds = kml.getDefaultViewport()?.getNorthEast();
         if (kmlBounds) {
@@ -113,7 +115,14 @@ const KMLViewer: React.FC<KMLViewerProps> = ({
           onLoad={handleKmlLoad}
           onStatusChanged={handleKmlStatusChanged}
         />
-        <Marker position={userPosition} />
+        {userPosition && (
+          <Marker
+            position={{
+              lat: userPosition.latitude,
+              lng: userPosition.longitude,
+            }}
+          />
+        )}
       </GoogleMap>
     );
   }
