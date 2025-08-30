@@ -58,7 +58,7 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
     setIsUploading(true);
 
     try {
-      const response = await T360Api.Projects.putFile(apiRequest);
+      const response = await T360Api.Projects.putFile(apiRequest!);
 
       const kmlData = {
         name: response.data.path.split("/").pop(),
