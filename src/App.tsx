@@ -1,4 +1,4 @@
-import { MapPin, Target } from "lucide-react";
+import { MapPin, MapPinOff, Target } from "lucide-react";
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import KMLLoader from "./components/KMLLoader";
@@ -8,8 +8,8 @@ import SweeperProjectGenerator, {
 } from "./components/SweeperProjectGenerator";
 
 const PositionTrakingOptions: PositionOptions = {
-  timeout: 15_000,
-  maximumAge: 3_000,
+  timeout: 10_000,
+  maximumAge: 2_000,
   enableHighAccuracy: true,
 };
 
@@ -34,11 +34,12 @@ function App(props: any) {
   } | null>(null);
 
   useEffect(() => {
-    setAllowTracking(true);
+    handleTrackingToggle();
   }, []);
 
   useEffect(() => {
     if (!allowTracking) {
+      setUserPosition(undefined);
       trackerId && navigator?.geolocation?.clearWatch?.(trackerId);
       return;
     }
@@ -56,7 +57,7 @@ function App(props: any) {
     if (notification) {
       const timer = setTimeout(() => {
         setNotification(null);
-      }, 4000);
+      }, 8_000);
       return () => clearTimeout(timer);
     }
   }, [notification]);
@@ -152,7 +153,7 @@ function App(props: any) {
 
     return (
       <div
-        className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+        className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
           notification.type === "success"
             ? "bg-green-100 border border-green-400 text-green-700"
             : notification.type === "error"
@@ -226,11 +227,11 @@ function App(props: any) {
       <section className="mb-6">
         <button
           title="Get your current location and center the map on it"
-          className="btn-primary flex items-center justify-center px-6"
+          className="btn btn-primary flex items-center"
           onClick={handleTrackingToggle}
         >
-          <MapPin className="w-4 h-4 mr-2" />
-          Track My Position
+          <span className="mr-2">Track My Position</span>
+          {allowTracking ? <MapPin /> : <MapPinOff />}
         </button>
       </section>
     );
@@ -242,7 +243,7 @@ function App(props: any) {
         <div className="card">
           <div className="flex items-center mb-4">
             <Target className="w-5 h-5 text-military-600 mr-2" />
-            <h2 className="text-lg font-semibold text-gray-800">Viewer</h2>
+            <h2 className="text-lg font-semibold text-gray-800">Map View</h2>
           </div>
 
           <div>{renderMapViewControls()}</div>
@@ -312,5 +313,4 @@ function App(props: any) {
   );
 }
 
-// Patch: pass loadKmlUrl to App for map loading
 export default App;
