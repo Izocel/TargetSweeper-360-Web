@@ -182,7 +182,7 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
                 updateRequestData({
                   target: {
                     ...target,
-                    latitude: isNaN(value) ? e.target.value : value,
+                    latitude: (isNaN(value) ? e.target.value : value) as number,
                   },
                 });
               }}
@@ -202,7 +202,9 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
                 updateRequestData({
                   target: {
                     ...target,
-                    longitude: isNaN(value) ? e.target.value : value,
+                    longitude: (isNaN(value)
+                      ? e.target.value
+                      : value) as number,
                   },
                 });
               }}
