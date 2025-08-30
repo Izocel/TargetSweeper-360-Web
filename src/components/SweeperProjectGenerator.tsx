@@ -39,10 +39,12 @@ const LabelFormatOptions = Object.entries(LabelFormat).map(([key, value]) => {
 
 interface SweeperProjectGeneratorProps {
   onLoadKmlToMap: (data?: KmlData) => void;
+  positionHandler: () => GeolocationCoordinates | undefined;
 }
 
 const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
   onLoadKmlToMap,
+  positionHandler,
 }) => {
   const [requestData, setRequestData] = useState<PutProjectRequest["data"]>({
     name: "",
@@ -87,24 +89,35 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
       const apiRequest = new PutProjectRequest(requestData as any);
       if (!apiRequest?.isValid) {
         throw {
-          response: {
-            data: { apiRequest },
-          },
+          response: { data: apiRequest },
         };
       }
 
       const response = await T360Api.Projects.put(apiRequest);
       setApiResult(response.data);
     } catch (error: any) {
-      setApiError(error?.response?.data ?? error);
+      setApiError(error.response?.data?.errors ?? error);
     }
 
     setIsSubmitting(false);
   };
 
+  const handleUseCurrentPosition = async () => {
+    const pos = positionHandler();
+    if (pos) {
+      updateRequestData({
+        target: {
+          ...requestData!.target,
+          latitude: pos.latitude,
+          longitude: pos.longitude,
+        },
+      });
+    }
+  };
+
   function renderNameSection() {
     return (
-      <div>
+      <div className="w-1/2 mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Project Name
         </label>
@@ -126,8 +139,8 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
     const target = requestData?.target!;
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
+      <div>
+        <div className="w-1/2 mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Target Name
           </label>
@@ -144,54 +157,59 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
             A label for the main target (e.g., "Alpha Point").
           </div>
         </div>
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Target Coordinates
+
+        <div className="w-1/2 mb-4">
+          <label className="flex text-sm font-medium text-gray-700 mb-1">
+            Target Coordinates (Latitude, Longitude)
+            <Compass
+              className="ml-2 h-5 w-5"
+              onClick={handleUseCurrentPosition}
+            />
           </label>
           <div className="relative flex">
             <input
-              step="text"
-              aria-label="Latitude, Longitude"
-              placeholder="e.g. 37.7749, -122.4194"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md pr-10"
-              value={`${target.latitude ?? 0}, ${target.longitude ?? 0}`}
+              required
+              min={-90.0}
+              max={90.0}
+              step="any"
+              type="number"
+              aria-label="Latitude"
+              placeholder="e.g. 37.7749"
+              className="w-1/2 px-3 py-2 border border-gray-300 rounded-md"
+              value={target.latitude}
               onChange={(e) => {
-                const [lat, lng] = e.target.value
-                  .split(",")
-                  .map((s) => parseFloat(s.trim()));
-
+                const value = parseFloat(e.target.value);
                 updateRequestData({
-                  target: { ...target, latitude: lat, longitude: lng },
+                  target: {
+                    ...target,
+                    latitude: isNaN(value) ? e.target.value : value,
+                  },
                 });
               }}
             />
-            <button
-              type="button"
-              title="Use current position"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:text-military-200 focus:outline-none"
-              onClick={async () => {
-                if (!navigator.geolocation) return;
-                navigator.geolocation.getCurrentPosition(
-                  (pos) => {
-                    updateRequestData({
-                      target: {
-                        ...target,
-                        latitude: pos.coords.latitude,
-                        longitude: pos.coords.longitude,
-                      },
-                    });
+            <input
+              required
+              min={-180}
+              max={180}
+              step="any"
+              type="number"
+              aria-label="Longitude"
+              placeholder="e.g. -122.4194"
+              className="w-1/2 px-3 py-2 border border-gray-300 rounded-md"
+              value={target.longitude}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                updateRequestData({
+                  target: {
+                    ...target,
+                    longitude: isNaN(value) ? e.target.value : value,
                   },
-                  () => {},
-                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
+                });
               }}
-            >
-              <Compass className="h-5 w-5" />
-            </button>
+            />
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            Latitude and longitude (comma separated). Click the icon to use your
-            current location.
+            Press the compass icon to use current location.
           </div>
         </div>
       </div>
@@ -200,7 +218,7 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
 
   function renderLabelFormatSection() {
     return (
-      <div>
+      <div className="w-1/2 mb-4">
         <label
           htmlFor="label-format-select"
           className="block text-sm font-medium text-gray-700 mb-1"
@@ -221,8 +239,7 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
           {LabelFormatOptions}
         </select>
         <div className="text-xs text-gray-500 mt-1">
-          Choose how sweep point labels are formatted. Example shown for each
-          style.
+          Choose how sweep point labels are formatted.
         </div>
       </div>
     );
@@ -305,89 +322,90 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
           Configure your project
         </h2>
       </div>
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         {renderNameSection()}
+        {renderLabelFormatSection()}
+        <div className="border-b border-gray-200 my-4" />
+
         {renderTargetSections()}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-          {renderLabelFormatSection()}
-          <div className="md:col-span-3">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Radius Step (meters)
-                </label>
-                <input
-                  min={1}
-                  step={1}
-                  type="number"
-                  placeholder="e.g. 10"
-                  max={requestData?.sweeperConfigs.maxRadius}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  value={requestData?.sweeperConfigs.radiusStep}
-                  onChange={(e) =>
-                    updateRequestData({
-                      sweeperConfigs: {
-                        ...requestData!.sweeperConfigs,
-                        radiusStep: parseInt(e.target.value),
-                      },
-                    })
-                  }
-                />
-                <div className="text-xs text-gray-500 mt-1">
-                  Distance between each sweep ring (meters).
-                </div>
+
+        <div className="w-1/2">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mt-1">
+              Radius Step (meters)
+            </label>
+            <input
+              min={1}
+              step={1}
+              type="number"
+              placeholder="e.g. 10"
+              max={requestData?.sweeperConfigs.maxRadius}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              value={requestData?.sweeperConfigs.radiusStep}
+              onChange={(e) =>
+                updateRequestData({
+                  sweeperConfigs: {
+                    ...requestData!.sweeperConfigs,
+                    radiusStep: parseInt(e.target.value),
+                  },
+                })
+              }
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              Distance between each sweep ring (meters).
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mt-1">
+                Max Radius (meters)
+              </label>
+              <input
+                step={1}
+                type="number"
+                placeholder="e.g. 500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                min={requestData?.sweeperConfigs.radiusStep}
+                value={requestData?.sweeperConfigs.maxRadius}
+                onChange={(e) =>
+                  updateRequestData({
+                    sweeperConfigs: {
+                      ...requestData!.sweeperConfigs,
+                      maxRadius: parseInt(e.target.value),
+                    },
+                  })
+                }
+              />
+              <div className="text-xs text-gray-500 mt-1">
+                Maximum sweep radius from the target (meters).
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Max Radius (meters)
-                </label>
-                <input
-                  step={1}
-                  type="number"
-                  placeholder="e.g. 500"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  min={requestData?.sweeperConfigs.radiusStep}
-                  value={requestData?.sweeperConfigs.maxRadius}
-                  onChange={(e) =>
-                    updateRequestData({
-                      sweeperConfigs: {
-                        ...requestData!.sweeperConfigs,
-                        maxRadius: parseInt(e.target.value),
-                      },
-                    })
-                  }
-                />
-                <div className="text-xs text-gray-500 mt-1">
-                  Maximum sweep radius from the target (meters).
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Angle Step (MOA)
-                </label>
-                <input
-                  min={1}
-                  step={1}
-                  type="number"
-                  placeholder="e.g. 300"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  value={requestData?.sweeperConfigs.angleStepMOA}
-                  onChange={(e) =>
-                    updateRequestData({
-                      sweeperConfigs: {
-                        ...requestData!.sweeperConfigs,
-                        angleStepMOA: parseInt(e.target.value),
-                      },
-                    })
-                  }
-                />
-                <div className="text-xs text-gray-500 mt-1">
-                  Angular step between sweep points (in MOA, 1 degree = 60 MOA).
-                </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mt-1">
+                Angle Step (MOA)
+              </label>
+              <input
+                min={1}
+                step={1}
+                type="number"
+                placeholder="e.g. 300"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                value={requestData?.sweeperConfigs.angleStepMOA}
+                onChange={(e) =>
+                  updateRequestData({
+                    sweeperConfigs: {
+                      ...requestData!.sweeperConfigs,
+                      angleStepMOA: parseInt(e.target.value),
+                    },
+                  })
+                }
+              />
+              <div className="text-xs text-gray-500 mt-1">
+                Angular step between sweep points (in MOA, 1 degree = 60 MOA).
               </div>
             </div>
           </div>
         </div>
+
         <div className="mt-4">
           <label className="block text-xs font-medium text-gray-500 mb-1 text-bold">
             Preview:

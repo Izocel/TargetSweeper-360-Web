@@ -34,20 +34,23 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
 
     try {
       const apiRequest = new PutFileProjectRequest({
-        file: e.target.files?.length ? e.target.files[0] : null,
+        file:
+          e.target.files && e.target.files.length > 0
+            ? e.target.files[0]
+            : undefined,
       } as any);
 
       if (!apiRequest?.isValid) {
         throw {
           response: {
-            data: { apiRequest },
+            data: apiRequest,
           },
         };
       }
 
       setApiRequest(apiRequest);
     } catch (error: any) {
-      setApiError(error?.response?.data ?? error);
+      setApiError(error?.response?.data?.errors ?? error);
     }
   };
 
@@ -56,20 +59,17 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
 
     try {
       const response = await T360Api.Projects.putFile(apiRequest);
-      debugger;
-      const name = response.data.path.split("/").pop();
 
       const kmlData = {
-        name: name,
+        name: response.data.path.split("/").pop(),
         url: new URL(response.data.path).toString(),
       };
 
-      setLoadedKml(kmlData);
       setApiRequest(null);
-      //onLoadKmlToMap(kmlData);
+      setLoadedKml(kmlData);
+      onLoadKmlToMap(kmlData);
     } catch (error: any) {
-      debugger;
-      setApiError(error?.response?.data ?? error);
+      setApiError(error?.response?.data?.errors ?? error);
     }
 
     setIsUploading(false);

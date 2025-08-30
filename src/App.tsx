@@ -302,7 +302,10 @@ function App(props: any) {
               (props.SweeperProjectGeneratorComponent ? (
                 props.SweeperProjectGeneratorComponent({})
               ) : (
-                <SweeperProjectGenerator onLoadKmlToMap={handleLoadKmlToMap} />
+                <SweeperProjectGenerator
+                  onLoadKmlToMap={handleLoadKmlToMap}
+                  positionHandler={() => userPosition}
+                />
               ))}
           </div>
         </section>
