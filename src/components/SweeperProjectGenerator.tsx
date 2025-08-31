@@ -9,8 +9,9 @@ import {
   PutProjectRequest,
   SweeperConfigs,
   Target,
+  type StoredProject,
 } from "targetsweeper-360";
-import { T360Api } from "../api";
+import { API_URL, T360Api } from "../api";
 import CopyableCodeBlock from "./CopyableCodeBlock";
 
 export interface KmlData {
@@ -57,7 +58,7 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
   const [apiError, setApiError] = useState<any>(null);
   const [apiResult, setApiResult] = useState<null | {
     projectName: string;
-    files: { path: string; content: string }[];
+    files?: StoredProject[];
     summary: {
       target: string;
       maxRadius: number;
@@ -266,16 +267,16 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
     if (!apiResult) return null;
 
     const { projectName, summary, files } = apiResult;
+
     const kmlData = {
       name: projectName,
-      url: `${import.meta.env.VITE_API_URL}/api/projects?name=${projectName}`,
+      url: `${API_URL}/api/projects?name=${projectName}`,
     };
 
-    const fileButtons = files.map((file, index) => {
-      const extension = file.path.split(".").pop();
+    const fileButtons = files?.map((file, index) => {
       const link = document.createElement("a");
       link.setAttribute("target", "_blank");
-      link.setAttribute("href", `${kmlData.url}&type=${extension}`);
+      link.setAttribute("href", `${kmlData.url}&type=${file.extension}`);
       document.body.appendChild(link);
 
       return (
@@ -288,7 +289,7 @@ const SweeperProjectGenerator: React.FC<SweeperProjectGeneratorProps> = ({
             link.remove();
           }}
         >
-          Download {extension}
+          Download {file.extension}
         </button>
       );
     });

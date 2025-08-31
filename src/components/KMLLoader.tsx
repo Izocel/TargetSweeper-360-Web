@@ -1,8 +1,8 @@
 import { Upload } from "lucide-react";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
-import { PutFileProjectRequest } from "targetsweeper-360";
-import { T360Api } from "../api";
+import { UploadProjectRequest } from "targetsweeper-360";
+import { API_URL, T360Api } from "../api";
 import CopyableCodeBlock from "./CopyableCodeBlock";
 import type { KmlData } from "./SweeperProjectGenerator";
 
@@ -21,11 +21,9 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
   const [loadedKml, setLoadedKml] = useState<KmlData | null>(null);
 
   const [apiError, setApiError] = useState<string | null>(null);
-
-  const [apiRequest, setApiRequest] = useState<PutFileProjectRequest | null>();
+  const [apiRequest, setApiRequest] = useState<UploadProjectRequest | null>();
 
   useEffect(() => {
-    // Highlight JSON preview after each render
     Prism.highlightAll();
   });
 
@@ -33,12 +31,9 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
     setApiError(null);
 
     try {
-      const apiRequest = new PutFileProjectRequest({
-        file:
-          e.target.files && e.target.files.length > 0
-            ? e.target.files[0]
-            : undefined,
-      } as any);
+      const apiRequest = new UploadProjectRequest({
+        file: e.target.files?.[0],
+      });
 
       if (!apiRequest?.isValid) {
         throw {
@@ -58,11 +53,17 @@ const KMLLoader: React.FC<KMLLoaderProps> = ({
     setIsUploading(true);
 
     try {
-      const response = await T360Api.Projects.putFile(apiRequest!);
+      const response = await T360Api.Projects.upload(apiRequest!);
+      if (!response.data) {
+        throw new Error("No data returned from API");
+      }
+
+      const project = response.data[0];
+      const url = new URL(`${API_URL}/${project.endpoint}`);
 
       const kmlData = {
-        name: response.data.path.split("/").pop(),
-        url: new URL(response.data.path).toString(),
+        url: url.toString(),
+        name: url.searchParams.get("name") ?? "Untitled KML",
       };
 
       setApiRequest(null);
